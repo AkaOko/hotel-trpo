@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Бронирование - Гостиница{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="text-center">Бронирование номера {{ room.number }}</h3>
+            </div>
+            <div class="card-body">
+                <div class="mb-4">
+                    <h5>Информация о номере:</h5>
+                    <p>
+                        <strong>Тип:</strong> {{ room.type }}<br>
+                        <strong>Вместимость:</strong> {{ room.capacity }} человек<br>
+                        <strong>Цена:</strong> {{ room.price }} руб./сутки<br>
+                        <strong>Описание:</strong> {{ room.description }}
+                    </p>
+                </div>
+
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="check_in" class="form-label">Дата заезда</label>
+                        <input type="date" class="form-control" id="check_in" name="check_in" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="check_out" class="form-label">Дата выезда</label>
+                        <input type="date" class="form-control" id="check_out" name="check_out" required>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">Подтвердить бронирование</button>
+                        <a href="{{ url_for('index') }}" class="btn btn-secondary">Отмена</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
