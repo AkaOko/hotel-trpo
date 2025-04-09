@@ -26,6 +26,7 @@ app = Flask(__name__,
            static_folder=STATIC_DIR,
            instance_relative_config=False)
 app.config.from_object(Config)
+app.instance_path = None  # Отключаем создание директории instance
 
 # Создаем директорию для загрузки файлов, если она не существует
 if not os.path.exists(UPLOAD_DIR):
