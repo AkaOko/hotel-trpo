@@ -14,14 +14,12 @@ from wtforms.validators import DataRequired
 from extensions import db, login_manager
 from models import User, Room, Booking, Service, BookingService, Review
 from forms import BookingForm, ProfileForm
+from config import Config
 import csv
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'dev-secret-key-1234567890-abcdefghijklmnopqrstuvwxyz'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///hotel.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['UPLOAD_FOLDER'] = 'static/room_images'
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max-limit
+app.config.from_object(Config)
+
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 # Инициализация расширений
