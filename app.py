@@ -57,6 +57,15 @@ except Exception as e:
 
 login_manager.login_view = 'login'
 
+# Создание таблиц при запуске
+with app.app_context():
+    try:
+        db.create_all()
+        logger.info("Database tables created successfully")
+    except Exception as e:
+        logger.error(f"Error creating database tables: {str(e)}")
+        raise
+
 from models import User, Room, Booking, Service, BookingService, Review
 
 class BookingForm(FlaskForm):
@@ -827,11 +836,4 @@ def not_found_error(error):
     return render_template('404.html'), 404
 
 if __name__ == '__main__':
-    with app.app_context():
-        try:
-            db.create_all()
-            logger.info("Database tables created successfully")
-        except Exception as e:
-            logger.error(f"Error creating database tables: {str(e)}")
-            raise
     app.run(host='0.0.0.0', port=5000, debug=True) 
