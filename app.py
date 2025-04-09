@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from datetime import datetime, timedelta
 import os
+import logging
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from functools import wraps
@@ -17,6 +18,10 @@ from forms import BookingForm, ProfileForm
 from config import Config
 import csv
 
+# Настройка логирования
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 # Определяем абсолютные пути
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 STATIC_DIR = os.path.join(BASE_DIR, 'static')
@@ -27,11 +32,22 @@ app = Flask(__name__,
            instance_relative_config=True)
 app.config.from_object(Config)
 
+# Настройка логирования для Flask
+if not app.debug:
+    file_handler = logging.FileHandler('error.log')
+    file_handler.setLevel(logging.ERROR)
+    app.logger.addHandler(file_handler)
+
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 # Инициализация расширений
-db.init_app(app)
-login_manager.init_app(app)
+try:
+    db.init_app(app)
+    login_manager.init_app(app)
+    logger.info("Extensions initialized successfully")
+except Exception as e:
+    logger.error(f"Error initializing extensions: {str(e)}")
+    raise
 
 login_manager.login_view = 'login'
 
@@ -794,7 +810,22 @@ def get_all_booked_dates():
         print(f"Error in get_all_booked_dates: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
+@app.errorhandler(500)
+def internal_error(error):
+    logger.error(f"Internal Server Error: {str(error)}")
+    return render_template('500.html'), 500
+
+@app.errorhandler(404)
+def not_found_error(error):
+    logger.error(f"Not Found Error: {str(error)}")
+    return render_template('404.html'), 404
+
 if __name__ == '__main__':
     with app.app_context():
-        db.create_all()
+        try:
+            db.create_all()
+            logger.info("Database tables created successfully")
+        except Exception as e:
+            logger.error(f"Error creating database tables: {str(e)}")
+            raise
     app.run(host='0.0.0.0', port=5000, debug=True) 

@@ -7,4 +7,8 @@ class Config:
     UPLOAD_FOLDER = 'static/room_images'
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB max-limit
     INSTANCE_PATH = None  # Отключаем создание директории instance
-    INSTANCE_RELATIVE_PATH = False  # Отключаем относительные пути 
+    INSTANCE_RELATIVE_PATH = False  # Отключаем относительные пути
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        'pool_pre_ping': True,
+        'pool_recycle': 300,
+    } 
