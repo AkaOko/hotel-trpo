@@ -6,4 +6,5 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     UPLOAD_FOLDER = 'static/room_images'
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB max-limit
-    INSTANCE_PATH = None  # Отключаем создание директории instance 
+    INSTANCE_PATH = None  # Отключаем создание директории instance
+    INSTANCE_RELATIVE_PATH = False  # Отключаем относительные пути 

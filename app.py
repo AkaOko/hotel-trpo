@@ -17,8 +17,19 @@ from forms import BookingForm, ProfileForm
 from config import Config
 import csv
 
-app = Flask(__name__)
+# Определяем абсолютные пути
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+STATIC_DIR = os.path.join(BASE_DIR, 'static')
+UPLOAD_DIR = os.path.join(STATIC_DIR, 'room_images')
+
+app = Flask(__name__, 
+           static_folder=STATIC_DIR,
+           instance_relative_config=False)
 app.config.from_object(Config)
+
+# Создаем директорию для загрузки файлов, если она не существует
+if not os.path.exists(UPLOAD_DIR):
+    os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
@@ -604,7 +615,7 @@ def upload_room_images(room_id):
     for file in files:
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
-            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file_path = os.path.join(UPLOAD_DIR, filename)
             file.save(file_path)
             
             # Здесь можно добавить логику для сохранения пути к изображению в базе данных
@@ -624,7 +635,7 @@ def delete_room_image(room_id, filename):
         return redirect(url_for('index'))
         
     room = Room.query.get_or_404(room_id)
-    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    file_path = os.path.join(UPLOAD_DIR, filename)
     
     if os.path.exists(file_path):
         os.remove(file_path)
