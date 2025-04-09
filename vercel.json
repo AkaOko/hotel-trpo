@@ -17,6 +17,8 @@
         "FLASK_APP": "app.py",
         "FLASK_ENV": "production",
         "FLASK_DEBUG": "0",
-        "FLASK_INSTANCE_PATH": "/tmp/instance"
+        "FLASK_INSTANCE_PATH": "/tmp/instance",
+        "DATABASE_URL": "@database_url",
+        "SECRET_KEY": "@secret_key"
     }
 } 
