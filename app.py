@@ -24,13 +24,8 @@ UPLOAD_DIR = os.path.join(STATIC_DIR, 'room_images')
 
 app = Flask(__name__, 
            static_folder=STATIC_DIR,
-           instance_relative_config=False)
+           instance_relative_config=True)
 app.config.from_object(Config)
-app.instance_path = None  # Отключаем создание директории instance
-
-# Создаем директорию для загрузки файлов, если она не существует
-if not os.path.exists(UPLOAD_DIR):
-    os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
