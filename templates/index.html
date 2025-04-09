@@ -1,30 +1,319 @@
 {% extends "base.html" %}
 
-{% block title %}Главная - Гостиница{% endblock %}
+{% block title %}Главная - Наш Отель{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
+<style>
+    .date-filter {
+        background-color: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 0.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .room-card {
+        transition: transform 0.2s;
+        height: 100%;
+    }
+    .room-card:hover {
+        transform: translateY(-5px);
+    }
+    .room-image {
+        height: 200px;
+        object-fit: cover;
+    }
+    .price-tag {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background-color: rgba(0,0,0,0.7);
+        color: white;
+        padding: 5px 10px;
+        border-radius: 4px;
+        font-weight: bold;
+    }
+    .tag-filter {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+    .form-check-inline {
+        background-color: #f8f9fa;
+        padding: 0.5rem 1rem;
+        border-radius: 2rem;
+        margin-right: 0;
+        transition: all 0.2s;
+    }
+    .form-check-inline:hover {
+        background-color: #e9ecef;
+    }
+    .form-check-input:checked + .form-check-label {
+        color: #0d6efd;
+        font-weight: 500;
+    }
+    .room-tag {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        margin: 0.25rem;
+        background-color: #e9ecef;
+        border-radius: 1rem;
+        font-size: 0.875rem;
+        color: #495057;
+    }
+    .flatpickr-calendar {
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+    }
+    .flatpickr-day.disabled {
+        background-color: #ffebee;
+        color: #f44336;
+        text-decoration: line-through;
+    }
+    .flatpickr-day.selected {
+        background-color: #4CAF50;
+        border-color: #4CAF50;
+    }
+    .flatpickr-day.selected:hover {
+        background-color: #45a049;
+        border-color: #45a049;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<h1 class="mb-4">Доступные номера</h1>
+<!-- Приветственный баннер -->
+<section class="hero-section text-center py-5 mb-5">
+    <h1 class="display-4 mb-4">Добро пожаловать в Наш Отель</h1>
+    <p class="lead mb-4">Откройте для себя непревзойденный комфорт и высококлассный сервис</p>
+    {% if not current_user.is_authenticated %}
+        <div class="d-flex justify-content-center gap-3">
+            <a href="{{ url_for('login') }}" class="btn btn-primary">
+                <i class="bi bi-box-arrow-in-right"></i> Войти
+            </a>
+            <a href="{{ url_for('register') }}" class="btn btn-outline-primary">
+                <i class="bi bi-person-plus"></i> Зарегистрироваться
+            </a>
+        </div>
+    {% endif %}
+</section>
 
-<div class="row">
-    {% for room in rooms %}
-    <div class="col-md-4">
-        <div class="card room-card">
-            <div class="card-body">
-                <h5 class="card-title">Номер {{ room.number }}</h5>
-                <p class="card-text">
-                    <strong>Тип:</strong> {{ room.type }}<br>
-                    <strong>Вместимость:</strong> {{ room.capacity }} человек<br>
-                    <strong>Цена:</strong> {{ room.price }} руб./сутки<br>
-                    <strong>Описание:</strong> {{ room.description }}
-                </p>
-                {% if current_user.is_authenticated %}
-                    <a href="{{ url_for('book_room', room_id=room.id) }}" class="btn btn-primary">Забронировать</a>
-                {% else %}
-                    <a href="{{ url_for('login') }}" class="btn btn-primary">Войдите для бронирования</a>
-                {% endif %}
+<!-- Фильтры -->
+<div class="container mt-4">
+    <h1 class="mb-4">Наши номера</h1>
+    
+    <!-- Фильтр по датам -->
+    <div class="date-filter mb-4">
+        <h5 class="mb-3">Выберите даты проживания</h5>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="mb-3">
+                    <label for="filter_check_in" class="form-label">Дата заезда</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-calendar3"></i></span>
+                        <input type="text" class="form-control" id="filter_check_in" placeholder="Выберите дату заезда">
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="mb-3">
+                    <label for="filter_check_out" class="form-label">Дата выезда</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-calendar3"></i></span>
+                        <input type="text" class="form-control" id="filter_check_out" placeholder="Выберите дату выезда">
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-    {% endfor %}
+    
+    <!-- Фильтр по тегам -->
+    <div class="tag-filter">
+        <label class="form-label">Фильтр по тегам:</label>
+        {% if tags %}
+            <a href="{{ url_for('index') }}" class="btn {% if not selected_tag %}btn-primary{% else %}btn-outline-primary{% endif %} mb-2 mr-2">
+                Все номера
+            </a>
+            {% for tag in tags %}
+            <a href="{{ url_for('index', tag=tag) }}" class="btn {% if selected_tag == tag %}btn-primary{% else %}btn-outline-primary{% endif %} mb-2 mr-2">
+                {{ tag }}
+            </a>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <!-- Список номеров -->
+    <div class="row row-cols-1 row-cols-md-3 g-4" id="rooms-container">
+        {% for room in rooms %}
+        <div class="col">
+            <div class="card room-card h-100">
+                {% if room.image_list %}
+                    <img src="{{ url_for('static', filename='room_images/' + room.image_list[0]) }}" class="card-img-top room-image" alt="Номер {{ room.number }}" onerror="this.src='{{ url_for('static', filename='images/room-default.jpg') }}'">
+                {% else %}
+                    <img src="{{ url_for('static', filename='images/room-default.jpg') }}" class="card-img-top room-image" alt="Номер {{ room.number }}">
+                {% endif %}
+                <div class="price-tag">{{ room.price }} ₽/сутки</div>
+                <div class="card-body">
+                    <h5 class="card-title">Номер {{ room.number }}</h5>
+                    <p class="card-text">
+                        <strong>Тип:</strong> {{ room.type }}<br>
+                        <strong>Вместимость:</strong> {{ room.capacity }} человек<br>
+                        <strong>Описание:</strong> {{ room.description }}
+                    </p>
+                    <div class="room-tags">
+                        {% for tag in room.tag_list %}
+                            <span class="room-tag">{{ tag }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent">
+                    {% if current_user.is_authenticated %}
+                        <a href="{{ url_for('book_room', room_id=room.id) }}" class="btn btn-primary w-100">
+                            <i class="bi bi-calendar-check me-2"></i>Забронировать
+                        </a>
+                    {% else %}
+                        <a href="{{ url_for('login') }}" class="btn btn-primary w-100">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>Войдите для бронирования
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
 </div>
+
+<!-- Наши преимущества -->
+<section class="features-section mt-5">
+    <h2 class="section-title">Наши преимущества</h2>
+    <div class="row g-4">
+        <div class="col-md-3">
+            <div class="admin-card text-center h-100">
+                <i class="bi bi-geo-alt display-4 text-primary mb-3"></i>
+                <h3>Удобное расположение</h3>
+                <p>В центре города, рядом с основными достопримечательностями</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="admin-card text-center h-100">
+                <i class="bi bi-wifi display-4 text-primary mb-3"></i>
+                <h3>Бесплатный Wi-Fi</h3>
+                <p>Высокоскоростной интернет во всех номерах и общественных зонах</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="admin-card text-center h-100">
+                <i class="bi bi-shield-check display-4 text-primary mb-3"></i>
+                <h3>Безопасность</h3>
+                <p>Круглосуточная охрана и современная система безопасности</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="admin-card text-center h-100">
+                <i class="bi bi-star display-4 text-primary mb-3"></i>
+                <h3>Сервис</h3>
+                <p>Профессиональный персонал и высокий уровень обслуживания</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ru.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let checkInPicker, checkOutPicker;
+    let bookedDates = [];
+    
+    // Загружаем занятые даты для всех номеров
+    function loadBookedDates() {
+        return fetch('/api/rooms/booked-dates')
+            .then(response => response.json())
+            .then(data => {
+                bookedDates = data.booked_dates.map(date => {
+                    const [year, month, day] = date.split('-');
+                    return new Date(year, month - 1, day);
+                });
+                return bookedDates;
+            });
+    }
+    
+    // Инициализация календарей
+    async function initializeDatePickers() {
+        checkInPicker = flatpickr("#filter_check_in", {
+            locale: "ru",
+            dateFormat: "Y-m-d",
+            minDate: "today",
+            onChange: function(selectedDates) {
+                if (selectedDates.length > 0) {
+                    const nextDay = new Date(selectedDates[0]);
+                    nextDay.setDate(nextDay.getDate() + 1);
+                    checkOutPicker.set("minDate", nextDay);
+                    
+                    if (checkOutPicker.selectedDates[0] && 
+                        checkOutPicker.selectedDates[0] <= selectedDates[0]) {
+                        checkOutPicker.clear();
+                    }
+                    filterRooms();
+                }
+            }
+        });
+        
+        checkOutPicker = flatpickr("#filter_check_out", {
+            locale: "ru",
+            dateFormat: "Y-m-d",
+            minDate: "today",
+            onChange: function() {
+                filterRooms();
+            }
+        });
+    }
+    
+    // Фильтрация номеров по датам
+    function filterRooms() {
+        const checkInDate = checkInPicker.selectedDates[0];
+        const checkOutDate = checkOutPicker.selectedDates[0];
+        
+        if (!checkInDate || !checkOutDate) {
+            // Если даты не выбраны, показываем все номера
+            document.querySelectorAll('.room-card').forEach(card => {
+                card.closest('.col').style.display = '';
+            });
+            return;
+        }
+        
+        const checkInStr = checkInDate.toISOString().split('T')[0];
+        const checkOutStr = checkOutDate.toISOString().split('T')[0];
+        
+        console.log('Фильтрация номеров для периода:', checkInStr, '-', checkOutStr);
+        
+        // Проверяем доступность каждого номера
+        document.querySelectorAll('.room-card').forEach(card => {
+            const roomId = card.querySelector('a').getAttribute('href').split('/').pop();
+            console.log('Проверка доступности номера:', roomId);
+            
+            fetch(`/api/rooms/${roomId}/availability?check_in=${checkInStr}&check_out=${checkOutStr}`)
+                .then(response => {
+                    console.log('Ответ сервера для номера', roomId, ':', response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Данные доступности для номера', roomId, ':', data);
+                    // Показываем номер только если он доступен на выбранный период
+                    card.closest('.col').style.display = data.available ? '' : 'none';
+                })
+                .catch(error => {
+                    console.error('Ошибка при проверке доступности номера', roomId, ':', error);
+                    // В случае ошибки показываем номер
+                    card.closest('.col').style.display = '';
+                });
+        });
+    }
+    
+    // Инициализация
+    initializeDatePickers();
+});
+</script>
 {% endblock %} 

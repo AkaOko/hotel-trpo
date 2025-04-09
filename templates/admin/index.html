@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+
+{% block title %}Админ-панель{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Админ-панель</h1>
+        <div class="btn-group">
+            <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown">
+                <i class="bi bi-download"></i> Выгрузить данные
+            </button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="{{ url_for('export_data', data_type='users') }}">Пользователи (CSV)</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('export_data', data_type='rooms') }}">Номера (CSV)</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('export_data', data_type='bookings') }}">Бронирования (CSV)</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('export_data', data_type='services') }}">Услуги (CSV)</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="{{ url_for('export_data', data_type='all') }}">Все данные (Excel)</a></li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-3 mb-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <i class="bi bi-people display-4 mb-3"></i>
+                    <h5 class="card-title">Пользователи</h5>
+                    <p class="card-text">Управление пользователями системы</p>
+                    <a href="{{ url_for('admin_users') }}" class="btn btn-primary">
+                        <i class="bi bi-person-gear"></i> Управлять
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <i class="bi bi-building display-4 mb-3"></i>
+                    <h5 class="card-title">Номера</h5>
+                    <p class="card-text">Управление номерами отеля</p>
+                    <a href="{{ url_for('admin_rooms') }}" class="btn btn-primary">
+                        <i class="bi bi-pencil-square"></i> Управлять
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <i class="bi bi-calendar-check display-4 mb-3"></i>
+                    <h5 class="card-title">Бронирования</h5>
+                    <p class="card-text">Управление бронированиями</p>
+                    <a href="{{ url_for('admin_bookings') }}" class="btn btn-primary">
+                        <i class="bi bi-list-check"></i> Управлять
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <i class="bi bi-gear display-4 mb-3"></i>
+                    <h5 class="card-title">Услуги</h5>
+                    <p class="card-text">Управление услугами отеля</p>
+                    <a href="{{ url_for('admin_services') }}" class="btn btn-primary">
+                        <i class="bi bi-tools"></i> Управлять
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Последние бронирования</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Пользователь</th>
+                                    <th>Номер</th>
+                                    <th>Статус</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for booking in bookings[:5] if bookings %}
+                                <tr>
+                                    <td>{{ booking.id }}</td>
+                                    <td>{{ booking.user.username }}</td>
+                                    <td>{{ booking.room.number }}</td>
+                                    <td>
+                                        <span class="badge {% if booking.status == 'confirmed' %}bg-success
+                                                          {% elif booking.status == 'pending' %}bg-warning
+                                                          {% else %}bg-danger{% endif %}">
+                                            {{ booking.status }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="4" class="text-center">Нет бронирований</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Статистика</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <h6>Всего пользователей</h6>
+                            <h3>{{ users_count if users_count else 0 }}</h3>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <h6>Всего номеров</h6>
+                            <h3>{{ rooms_count if rooms_count else 0 }}</h3>
+                        </div>
+                        <div class="col-6">
+                            <h6>Активных бронирований</h6>
+                            <h3>{{ active_bookings if active_bookings else 0 }}</h3>
+                        </div>
+                        <div class="col-6">
+                            <h6>Доступных услуг</h6>
+                            <h3>{{ services_count if services_count else 0 }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

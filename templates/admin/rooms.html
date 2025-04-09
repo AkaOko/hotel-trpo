@@ -1,51 +1,146 @@
-{% extends "base.html" %}
+{% extends "admin/base.html" %}
 
-{% block title %}Управление номерами - Гостиница{% endblock %}
-
-{% block content %}
-<div class="container">
-    <h1 class="mb-4">Управление номерами</h1>
-
-    <div class="mb-4">
+{% block admin_content %}
+<div class="admin-card">
+    <div class="admin-card-header d-flex justify-content-between align-items-center">
+        <h3 class="mb-0">Управление номерами</h3>
         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addRoomModal">
-            Добавить номер
+            <i class="bi bi-plus-lg"></i> Добавить номер
         </button>
     </div>
+    
+    <div class="admin-card-body">
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                    <input type="text" class="form-control" id="searchInput" placeholder="Поиск по номеру...">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <select class="form-select" id="typeFilter">
+                    <option value="">Все типы</option>
+                    <option value="Стандарт">Стандарт</option>
+                    <option value="Люкс">Люкс</option>
+                    <option value="Полулюкс">Полулюкс</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select class="form-select" id="statusFilter">
+                    <option value="">Все статусы</option>
+                    <option value="available">Доступен</option>
+                    <option value="unavailable">Занят</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select class="form-select" id="sortSelect">
+                    <option value="number_asc">Номер (возр.)</option>
+                    <option value="number_desc">Номер (убыв.)</option>
+                    <option value="price_asc">Цена (возр.)</option>
+                    <option value="price_desc">Цена (убыв.)</option>
+                    <option value="capacity_asc">Вместимость (возр.)</option>
+                    <option value="capacity_desc">Вместимость (убыв.)</option>
+                </select>
+            </div>
+        </div>
 
-    <div class="table-responsive">
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Номер</th>
-                    <th>Тип</th>
-                    <th>Цена</th>
-                    <th>Вместимость</th>
-                    <th>Статус</th>
-                    <th>Действия</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for room in rooms %}
-                <tr>
-                    <td>{{ room.number }}</td>
-                    <td>{{ room.type }}</td>
-                    <td>{{ room.price }} руб.</td>
-                    <td>{{ room.capacity }} чел.</td>
-                    <td>
-                        {% if room.is_available %}
-                            <span class="badge bg-success">Доступен</span>
-                        {% else %}
-                            <span class="badge bg-danger">Занят</span>
-                        {% endif %}
-                    </td>
-                    <td>
-                        <button class="btn btn-sm btn-primary" onclick="editRoom({{ room.id }})">Редактировать</button>
-                        <button class="btn btn-sm btn-danger" onclick="deleteRoom({{ room.id }})">Удалить</button>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <div class="table-responsive">
+            <table class="table table-hover" id="roomsTable">
+                <thead class="table-light">
+                    <tr>
+                        <th data-sort="number">Номер</th>
+                        <th data-sort="type">Тип</th>
+                        <th data-sort="price">Цена</th>
+                        <th data-sort="capacity">Вместимость</th>
+                        <th data-sort="status">Статус</th>
+                        <th>Изображения</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for room in rooms %}
+                    <tr class="room-row" 
+                        data-number="{{ room.number }}"
+                        data-type="{{ room.type }}"
+                        data-price="{{ room.price }}"
+                        data-capacity="{{ room.capacity }}"
+                        data-status="{{ 'available' if room.is_available else 'unavailable' }}">
+                        <td>{{ room.number }}</td>
+                        <td>{{ room.type }}</td>
+                        <td>{{ room.price }} ₽</td>
+                        <td>{{ room.capacity }} чел.</td>
+                        <td>
+                            {% if room.is_available %}
+                                <span class="badge bg-success">Доступен</span>
+                            {% else %}
+                                <span class="badge bg-danger">Занят</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#imagesModal{{ room.id }}">
+                                <i class="bi bi-images"></i> {{ room.image_list|length }}
+                            </button>
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="{{ url_for('admin_edit_room', room_id=room.id) }}" class="btn btn-outline-primary" title="Редактировать">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <button type="button" class="btn btn-outline-danger" title="Удалить" 
+                                        onclick="deleteRoom({{ room.id }}, '{{ room.number }}')">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- Модальное окно изображений -->
+                    <div class="modal fade" id="imagesModal{{ room.id }}" tabindex="-1">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Изображения номера {{ room.number }}</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <form action="{{ url_for('upload_room_images', room_id=room.id) }}" method="POST" enctype="multipart/form-data">
+                                        <div class="mb-3">
+                                            <label for="images" class="form-label">Загрузить новые изображения</label>
+                                            <input type="file" class="form-control" id="images" name="images" multiple accept="image/*">
+                                        </div>
+                                        <button type="submit" class="btn btn-primary mb-3">
+                                            <i class="bi bi-upload"></i> Загрузить
+                                        </button>
+                                    </form>
+
+                                    <div class="row">
+                                        {% if room.image_list %}
+                                            {% for image in room.image_list %}
+                                                <div class="col-md-4 mb-3">
+                                                    <div class="card">
+                                                        <img src="{{ url_for('static', filename='room_images/' + image) }}" class="card-img-top" alt="Room image">
+                                                        <div class="card-body">
+                                                            <form action="{{ url_for('delete_room_image', room_id=room.id, filename=image) }}" method="POST">
+                                                                <button type="submit" class="btn btn-outline-danger btn-sm">
+                                                                    <i class="bi bi-trash"></i> Удалить
+                                                                </button>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            {% endfor %}
+                                        {% else %}
+                                            <p>Нет загруженных изображений</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
@@ -65,7 +160,11 @@
                     </div>
                     <div class="mb-3">
                         <label for="type" class="form-label">Тип</label>
-                        <input type="text" class="form-control" id="type" name="type" required>
+                        <select class="form-select" id="type" name="type" required>
+                            <option value="Стандарт">Стандарт</option>
+                            <option value="Люкс">Люкс</option>
+                            <option value="Полулюкс">Полулюкс</option>
+                        </select>
                     </div>
                     <div class="mb-3">
                         <label for="price" class="form-label">Цена</label>
@@ -88,4 +187,135 @@
         </div>
     </div>
 </div>
+
+<!-- Модальное окно редактирования номера -->
+<div class="modal fade" id="editRoomModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Редактировать номер</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editRoomForm" method="POST">
+                    <input type="hidden" id="edit_room_id" name="room_id">
+                    <div class="mb-3">
+                        <label for="edit_number" class="form-label">Номер</label>
+                        <input type="text" class="form-control" id="edit_number" name="number" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_type" class="form-label">Тип</label>
+                        <select class="form-select" id="edit_type" name="type" required>
+                            <option value="Стандарт">Стандарт</option>
+                            <option value="Люкс">Люкс</option>
+                            <option value="Полулюкс">Полулюкс</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_price" class="form-label">Цена</label>
+                        <input type="number" class="form-control" id="edit_price" name="price" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_capacity" class="form-label">Вместимость</label>
+                        <input type="number" class="form-control" id="edit_capacity" name="capacity" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_description" class="form-label">Описание</label>
+                        <textarea class="form-control" id="edit_description" name="description" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <button type="submit" form="editRoomForm" class="btn btn-primary">Сохранить</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function editRoom(roomId) {
+    fetch(`/admin/rooms/${roomId}`)
+        .then(response => response.json())
+        .then(room => {
+            document.getElementById('edit_room_id').value = room.id;
+            document.getElementById('edit_number').value = room.number;
+            document.getElementById('edit_type').value = room.type;
+            document.getElementById('edit_price').value = room.price;
+            document.getElementById('edit_capacity').value = room.capacity;
+            document.getElementById('edit_description').value = room.description;
+            document.getElementById('editRoomForm').action = `/admin/rooms/${roomId}/edit`;
+            new bootstrap.Modal(document.getElementById('editRoomModal')).show();
+        });
+}
+
+function deleteRoom(roomId, roomNumber) {
+    if (confirm('Вы уверены, что хотите удалить этот номер?')) {
+        fetch(`/admin/rooms/${roomId}/delete`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        }).then(response => {
+            if (response.ok) {
+                location.reload();
+            }
+        });
+    }
+}
+
+// Фильтрация и сортировка
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchInput');
+    const typeFilter = document.getElementById('typeFilter');
+    const statusFilter = document.getElementById('statusFilter');
+    const sortSelect = document.getElementById('sortSelect');
+    const roomRows = document.querySelectorAll('.room-row');
+
+    function filterAndSortRooms() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const selectedType = typeFilter.value;
+        const selectedStatus = statusFilter.value;
+        const [sortField, sortDirection] = sortSelect.value.split('_');
+
+        roomRows.forEach(row => {
+            const number = row.getAttribute('data-number').toLowerCase();
+            const type = row.getAttribute('data-type');
+            const status = row.getAttribute('data-status');
+
+            const matchesSearch = number.includes(searchTerm);
+            const matchesType = !selectedType || type === selectedType;
+            const matchesStatus = !selectedStatus || status === selectedStatus;
+
+            row.style.display = matchesSearch && matchesType && matchesStatus ? '' : 'none';
+        });
+
+        // Сортировка
+        const tbody = document.querySelector('#roomsTable tbody');
+        const rows = Array.from(roomRows);
+        rows.sort((a, b) => {
+            let aValue = a.getAttribute(`data-${sortField}`);
+            let bValue = b.getAttribute(`data-${sortField}`);
+            
+            if (sortField === 'price' || sortField === 'capacity') {
+                aValue = parseFloat(aValue);
+                bValue = parseFloat(bValue);
+            }
+
+            if (sortDirection === 'asc') {
+                return aValue > bValue ? 1 : -1;
+            } else {
+                return aValue < bValue ? 1 : -1;
+            }
+        });
+
+        rows.forEach(row => tbody.appendChild(row));
+    }
+
+    searchInput.addEventListener('input', filterAndSortRooms);
+    typeFilter.addEventListener('change', filterAndSortRooms);
+    statusFilter.addEventListener('change', filterAndSortRooms);
+    sortSelect.addEventListener('change', filterAndSortRooms);
+});
+</script>
 {% endblock %} 

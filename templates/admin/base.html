@@ -1,1 +1,99 @@
- 
+{% extends "base.html" %}
+
+{% block styles %}
+<style>
+    .admin-sidebar {
+        background-color: #343a40;
+        min-height: calc(100vh - 56px);
+        padding-top: 1rem;
+    }
+    
+    .admin-sidebar .nav-link {
+        color: rgba(255,255,255,.75);
+        padding: 0.5rem 1rem;
+        margin: 0.2rem 0;
+        border-radius: 0.25rem;
+    }
+    
+    .admin-sidebar .nav-link:hover {
+        color: #fff;
+        background-color: rgba(255,255,255,.1);
+    }
+    
+    .admin-sidebar .nav-link.active {
+        color: #fff;
+        background-color: rgba(255,255,255,.2);
+    }
+    
+    .admin-content {
+        padding: 2rem;
+    }
+    
+    .admin-card {
+        background: #fff;
+        border-radius: 0.5rem;
+        box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,.075);
+        margin-bottom: 1.5rem;
+    }
+    
+    .admin-card-header {
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid rgba(0,0,0,.125);
+        background-color: rgba(0,0,0,.03);
+    }
+    
+    .admin-card-body {
+        padding: 1.5rem;
+    }
+    
+    .stats-card {
+        background: linear-gradient(45deg, #2193b0, #6dd5ed);
+        color: white;
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .stats-card h3 {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .stats-card p {
+        margin-bottom: 0;
+        opacity: 0.9;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 admin-sidebar">
+            <div class="nav flex-column">
+                <a class="nav-link {% if request.endpoint == 'admin' %}active{% endif %}" href="{{ url_for('admin') }}">
+                    <i class="bi bi-speedometer2 me-2"></i>Панель управления
+                </a>
+                <a class="nav-link {% if request.endpoint == 'admin_bookings' %}active{% endif %}" href="{{ url_for('admin_bookings') }}">
+                    <i class="bi bi-calendar-check me-2"></i>Бронирования
+                </a>
+                <a class="nav-link {% if request.endpoint == 'admin_rooms' %}active{% endif %}" href="{{ url_for('admin_rooms') }}">
+                    <i class="bi bi-building me-2"></i>Номера
+                </a>
+                <a class="nav-link {% if request.endpoint == 'admin_services' %}active{% endif %}" href="{{ url_for('admin_services') }}">
+                    <i class="bi bi-list-check me-2"></i>Услуги
+                </a>
+                <a class="nav-link {% if request.endpoint == 'admin_users' %}active{% endif %}" href="{{ url_for('admin_users') }}">
+                    <i class="bi bi-people me-2"></i>Пользователи
+                </a>
+            </div>
+        </div>
+        
+        <!-- Main content -->
+        <div class="col-md-9 col-lg-10 admin-content">
+            {% block admin_content %}{% endblock %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

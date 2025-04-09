@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Наши номера</h1>
+    
+    <div class="row">
+        {% for room in rooms %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                {% if room.image_list %}
+                    <img src="{{ url_for('static', filename='room_images/' + room.image_list[0]) }}" 
+                         class="card-img-top" 
+                         alt="Номер {{ room.number }}"
+                         onerror="this.src='{{ url_for('static', filename='images/room-default.jpg') }}'">
+                {% else %}
+                    <img src="{{ url_for('static', filename='images/room-default.jpg') }}" 
+                         class="card-img-top" 
+                         alt="Номер {{ room.number }}">
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">Номер {{ room.number }}</h5>
+                    <p class="card-text">{{ room.description }}</p>
+                    <ul class="list-unstyled">
+                        <li><strong>Тип:</strong> {{ room.type }}</li>
+                        <li><strong>Цена за ночь:</strong> {{ room.price }} руб.</li>
+                        <li><strong>Вместимость:</strong> {{ room.capacity }} чел.</li>
+                    </ul>
+                    {% if room.tag_list %}
+                    <div class="mt-2">
+                        {% for tag in room.tag_list %}
+                        <span class="badge bg-primary me-1">{{ tag }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="card-footer">
+                    <a href="{{ url_for('book_room', room_id=room.id) }}" class="btn btn-primary">Забронировать</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %} 

@@ -1,81 +1,104 @@
-{% extends "base.html" %}
+{% extends "admin/base.html" %}
 
-{% block title %}Панель администратора - Гостиница{% endblock %}
-
-{% block content %}
-<div class="container">
-    <h1 class="mb-4">Панель администратора</h1>
-
-    <div class="row">
-        <div class="col-md-3">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Номера</h5>
-                    <p class="card-text">Управление номерами гостиницы</p>
-                    <a href="{{ url_for('admin_rooms') }}" class="btn btn-primary">Управление</a>
-                </div>
-            </div>
+{% block admin_content %}
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="stats-card">
+            <h3>{{ total_bookings }}</h3>
+            <p>Всего бронирований</p>
         </div>
-
-        <div class="col-md-3">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Услуги</h5>
-                    <p class="card-text">Управление дополнительными услугами</p>
-                    <a href="{{ url_for('admin_services') }}" class="btn btn-primary">Управление</a>
-                </div>
-            </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stats-card" style="background: linear-gradient(45deg, #ff9a9e, #fad0c4);">
+            <h3>{{ pending_bookings }}</h3>
+            <p>Ожидающих бронирований</p>
         </div>
-
-        <div class="col-md-3">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Бронирования</h5>
-                    <p class="card-text">Управление бронированиями</p>
-                    <a href="{{ url_for('admin_bookings') }}" class="btn btn-primary">Управление</a>
-                </div>
-            </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stats-card" style="background: linear-gradient(45deg, #a1c4fd, #c2e9fb);">
+            <h3>{{ total_rooms }}</h3>
+            <p>Всего номеров</p>
         </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stats-card" style="background: linear-gradient(45deg, #84fab0, #8fd3f4);">
+            <h3>{{ total_users }}</h3>
+            <p>Всего пользователей</p>
+        </div>
+    </div>
+</div>
 
-        <div class="col-md-3">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Пользователи</h5>
-                    <p class="card-text">Управление пользователями</p>
-                    <a href="{{ url_for('admin_users') }}" class="btn btn-primary">Управление</a>
+<div class="row">
+    <div class="col-md-6">
+        <div class="admin-card">
+            <div class="admin-card-header">
+                <h4 class="mb-0">Последние бронирования</h4>
+            </div>
+            <div class="admin-card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>Пользователь</th>
+                                <th>Номер</th>
+                                <th>Статус</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for booking in recent_bookings %}
+                            <tr>
+                                <td>{{ booking.id }}</td>
+                                <td>{{ booking.user.username }}</td>
+                                <td>{{ booking.room.number }}</td>
+                                <td>
+                                    <span class="badge {% if booking.status == 'confirmed' %}bg-success
+                                                     {% elif booking.status == 'pending' %}bg-warning
+                                                     {% else %}bg-danger{% endif %}">
+                                        {{ booking.status }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
-
-    <div class="row mt-4">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Статистика</h5>
-                    <p class="card-text">
-                        Всего номеров: {{ rooms_count }}<br>
-                        Активных бронирований: {{ active_bookings }}<br>
-                        Зарегистрированных пользователей: {{ users_count }}
-                    </p>
-                </div>
+    
+    <div class="col-md-6">
+        <div class="admin-card">
+            <div class="admin-card-header">
+                <h4 class="mb-0">Статистика по номерам</h4>
             </div>
-        </div>
-
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Последние бронирования</h5>
-                    <ul class="list-group">
-                        {% for booking in recent_bookings %}
-                        <li class="list-group-item">
-                            Номер {{ booking.room.number }} - {{ booking.user.username }} ({{ booking.check_in.strftime('%d.%m.%Y') }} - {{ booking.check_out.strftime('%d.%m.%Y') }})
-                        </li>
-                        {% endfor %}
-                    </ul>
+            <div class="admin-card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Тип номера</th>
+                                <th>Количество</th>
+                                <th>Занято</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for room_type, count in room_stats.items() %}
+                            <tr>
+                                <td>{{ room_type }}</td>
+                                <td>{{ count.total }}</td>
+                                <td>{{ count.booked }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
 {% endblock %} 

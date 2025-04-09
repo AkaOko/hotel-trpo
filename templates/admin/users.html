@@ -1,57 +1,59 @@
-{% extends "base.html" %}
+{% extends "admin/base.html" %}
 
-{% block content %}
-<div class="container mt-4">
-    <h2>Управление пользователями</h2>
-    
-    <div class="mb-4">
+{% block admin_content %}
+<div class="admin-card">
+    <div class="admin-card-header d-flex justify-content-between align-items-center">
+        <h3 class="mb-0">Управление пользователями</h3>
         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">
-            Добавить пользователя
+            <i class="bi bi-person-plus"></i> Добавить пользователя
         </button>
     </div>
-
-    <div class="table-responsive">
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Имя пользователя</th>
-                    <th>Email</th>
-                    <th>Роль</th>
-                    <th>Дата регистрации</th>
-                    <th>Действия</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for user in users %}
-                <tr>
-                    <td>{{ user.id }}</td>
-                    <td>{{ user.username }}</td>
-                    <td>{{ user.email }}</td>
-                    <td>
-                        {% if user.role == 'admin' %}
-                            <span class="badge bg-danger">Администратор</span>
-                        {% elif user.role == 'manager' %}
-                            <span class="badge bg-warning">Менеджер</span>
-                        {% else %}
-                            <span class="badge bg-primary">Клиент</span>
-                        {% endif %}
-                    </td>
-                    <td>{{ user.created_at.strftime('%d.%m.%Y %H:%M') }}</td>
-                    <td>
-                        <button type="button" class="btn btn-sm btn-primary" onclick="editUser({{ user.id }})">
-                            Редактировать
-                        </button>
-                        {% if user.id != current_user.id %}
-                        <button type="button" class="btn btn-sm btn-danger" onclick="deleteUser({{ user.id }})">
-                            Удалить
-                        </button>
-                        {% endif %}
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    
+    <div class="admin-card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Имя пользователя</th>
+                        <th>Email</th>
+                        <th>Роль</th>
+                        <th>Дата регистрации</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>{{ user.id }}</td>
+                        <td>{{ user.username }}</td>
+                        <td>{{ user.email }}</td>
+                        <td>
+                            {% if user.role == 'admin' %}
+                                <span class="badge bg-danger">Администратор</span>
+                            {% elif user.role == 'manager' %}
+                                <span class="badge bg-warning">Менеджер</span>
+                            {% else %}
+                                <span class="badge bg-primary">Клиент</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ user.created_at.strftime('%d.%m.%Y') }}</td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="{{ url_for('admin_edit_user', user_id=user.id) }}" class="btn btn-outline-primary" title="Редактировать">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <button type="button" class="btn btn-outline-danger" title="Удалить" 
+                                        onclick="deleteUser({{ user.id }}, '{{ user.username }}')">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
@@ -64,7 +66,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <form id="addUserForm" method="POST" action="{{ url_for('admin_add_user') }}">
+                <form id="addUserForm" method="POST" action="/admin/users/add">
                     <div class="mb-3">
                         <label for="username" class="form-label">Имя пользователя</label>
                         <input type="text" class="form-control" id="username" name="username" required>
@@ -150,7 +152,7 @@ function editUser(userId) {
         });
 }
 
-function deleteUser(userId) {
+function deleteUser(userId, username) {
     if (confirm('Вы уверены, что хотите удалить этого пользователя?')) {
         fetch(`/admin/users/${userId}/delete`, {
             method: 'POST',

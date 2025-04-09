@@ -1,0 +1,12 @@
+{
+  "name": "hotel-booking-tests",
+  "version": "1.0.0",
+  "description": "Тесты для системы бронирования отеля",
+  "scripts": {
+    "test": "cypress run",
+    "cypress:open": "cypress open"
+  },
+  "dependencies": {
+    "cypress": "^14.3.0"
+  }
+}

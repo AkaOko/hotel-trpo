@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Мои бронирования{% endblock %}
+
+{% block content %}
+<div class="container mt-4 mb-5">
+    <h2 class="mb-4">Мои бронирования</h2>
+    
+    {% if bookings %}
+        <div class="row">
+            {% for booking in bookings %}
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Номер {{ booking.room.number }}</h5>
+                        <p class="card-text">
+                            <strong>Дата заезда:</strong> {{ booking.check_in.strftime('%d.%m.%Y') }}<br>
+                            <strong>Дата выезда:</strong> {{ booking.check_out.strftime('%d.%m.%Y') }}<br>
+                            <strong>Статус:</strong> 
+                            <span class="badge {% if booking.status == 'confirmed' %}bg-success{% elif booking.status == 'pending' %}bg-warning{% else %}bg-danger{% endif %}">
+                                {{ booking.status }}
+                            </span>
+                        </p>
+                        <div class="mb-3">
+                            <strong>Дополнительные услуги:</strong>
+                            {% if booking.services %}
+                                <ul class="list-unstyled">
+                                    {% for service in booking.services %}
+                                        <li>{{ service.name }} - {{ service.price }} ₽</li>
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                <p class="text-muted">Нет дополнительных услуг</p>
+                            {% endif %}
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Итого: {{ booking.total_price }} ₽</h5>
+                            {% if booking.status == 'pending' %}
+                                <form action="{{ url_for('delete_booking', booking_id=booking.id) }}" method="POST" style="display: inline;">
+                                    <button type="submit" class="btn btn-danger" onclick="return confirm('Вы уверены, что хотите отменить это бронирование?')">
+                                        <i class="bi bi-x-circle"></i> Отменить
+                                    </button>
+                                </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            У вас пока нет бронирований.
+        </div>
+    {% endif %}
+</div>
+{% endblock %} 

@@ -1,0 +1,189 @@
+/* Основные стили */
+:root {
+    --primary-color: #2c3e50;
+    --secondary-color: #3498db;
+    --accent-color: #e74c3c;
+    --light-bg: #f8f9fa;
+    --dark-bg: #2c3e50;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: var(--light-bg);
+    color: #333;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1 0 auto;
+}
+
+footer {
+    flex-shrink: 0;
+}
+
+/* Навигация */
+.navbar {
+    background-color: var(--primary-color);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.navbar-brand {
+    font-weight: 700;
+    color: white !important;
+}
+
+.nav-link {
+    color: rgba(255,255,255,0.8) !important;
+    transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+    color: white !important;
+}
+
+/* Карточки номеров */
+.room-card {
+    border: none;
+    border-radius: 15px;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    margin-bottom: 2rem;
+}
+
+.room-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.room-card img {
+    height: 250px;
+    object-fit: cover;
+}
+
+.room-card .card-body {
+    padding: 1.5rem;
+}
+
+.room-price {
+    font-size: 1.5rem;
+    color: var(--secondary-color);
+    font-weight: 700;
+}
+
+/* Кнопки */
+.btn-primary {
+    background-color: var(--secondary-color);
+    border-color: var(--secondary-color);
+    padding: 0.5rem 1.5rem;
+    border-radius: 25px;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: #2980b9;
+    border-color: #2980b9;
+    transform: translateY(-2px);
+}
+
+/* Формы */
+.form-control {
+    border-radius: 10px;
+    border: 1px solid #dee2e6;
+    padding: 0.75rem 1rem;
+}
+
+.form-control:focus {
+    box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+    border-color: var(--secondary-color);
+}
+
+/* Заголовки */
+.section-title {
+    color: var(--primary-color);
+    font-weight: 700;
+    margin-bottom: 2rem;
+    position: relative;
+    padding-bottom: 1rem;
+}
+
+.section-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 50px;
+    height: 3px;
+    background-color: var(--secondary-color);
+}
+
+/* Карусель изображений */
+.carousel-item img {
+    height: 400px;
+    object-fit: cover;
+}
+
+/* Календарь */
+.flatpickr-calendar {
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+    border-radius: 15px !important;
+}
+
+.flatpickr-day.selected {
+    background-color: var(--secondary-color) !important;
+    border-color: var(--secondary-color) !important;
+}
+
+/* Профиль пользователя */
+.profile-section {
+    background-color: white;
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+
+/* Админ панель */
+.admin-card {
+    background-color: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+
+.admin-card h3 {
+    color: var(--primary-color);
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+}
+
+/* Отзывы */
+.review-card {
+    background-color: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+
+.rating {
+    color: #f1c40f;
+    font-size: 1.2rem;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .room-card img {
+        height: 200px;
+    }
+    
+    .carousel-item img {
+        height: 300px;
+    }
+    
+    .section-title {
+        font-size: 1.5rem;
+    }
+} 

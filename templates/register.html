@@ -1,15 +1,13 @@
 {% extends "base.html" %}
 
-{% block title %}Регистрация - Гостиница{% endblock %}
+{% block title %}Регистрация - Nordic Line{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                <h3 class="text-center">Регистрация</h3>
-            </div>
-            <div class="card-body">
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-4">
+            <div class="profile-section">
+                <h1 class="h3 mb-4 text-center">Регистрация в Nordic Line</h1>
                 <form method="POST">
                     <div class="mb-3">
                         <label for="username" class="form-label">Имя пользователя</label>
@@ -27,11 +25,15 @@
                         <label for="confirm_password" class="form-label">Подтвердите пароль</label>
                         <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
                     </div>
-                    <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
-                        <a href="{{ url_for('login') }}" class="btn btn-secondary">Уже есть аккаунт? Войти</a>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-person-plus"></i> Зарегистрироваться
+                        </button>
                     </div>
                 </form>
+                <div class="text-center mt-3">
+                    <p class="mb-0">Уже есть аккаунт? <a href="{{ url_for('login') }}">Войдите</a></p>
+                </div>
             </div>
         </div>
     </div>

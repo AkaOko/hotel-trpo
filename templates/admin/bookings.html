@@ -1,38 +1,82 @@
-{% extends "base.html" %}
+{% extends "admin/base.html" %}
 
-{% block content %}
-<div class="container mt-4">
-    <h2>Управление бронированиями</h2>
-    <div class="table-responsive">
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Пользователь</th>
-                    <th>Номер</th>
-                    <th>Дата заезда</th>
-                    <th>Дата выезда</th>
-                    <th>Статус</th>
-                    <th>Действия</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for booking in bookings %}
-                <tr>
-                    <td>{{ booking.id }}</td>
-                    <td>{{ booking.user.username }}</td>
-                    <td>{{ booking.room.number }}</td>
-                    <td>{{ booking.check_in.strftime('%d.%m.%Y') }}</td>
-                    <td>{{ booking.check_out.strftime('%d.%m.%Y') }}</td>
-                    <td>{{ booking.status }}</td>
-                    <td>
-                        <a href="{{ url_for('edit_booking', booking_id=booking.id) }}" class="btn btn-sm btn-primary">Редактировать</a>
-                        <a href="{{ url_for('delete_booking', booking_id=booking.id) }}" class="btn btn-sm btn-danger" onclick="return confirm('Вы уверены, что хотите удалить это бронирование?')">Удалить</a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+{% block admin_content %}
+<div class="admin-card">
+    <div class="admin-card-header d-flex justify-content-between align-items-center">
+        <h3 class="mb-0">Управление бронированиями</h3>
+        <div class="btn-group">
+            <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                Фильтр по статусу
+            </button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="{{ url_for('admin_bookings') }}">Все</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('admin_bookings', status='pending') }}">Ожидающие</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('admin_bookings', status='confirmed') }}">Подтвержденные</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('admin_bookings', status='cancelled') }}">Отмененные</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="admin-card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Пользователь</th>
+                        <th>Номер</th>
+                        <th>Дата заезда</th>
+                        <th>Дата выезда</th>
+                        <th>Статус</th>
+                        <th>Стоимость</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for booking in bookings %}
+                    <tr>
+                        <td>{{ booking.id }}</td>
+                        <td>
+                            <a href="{{ url_for('admin_users') }}" class="text-decoration-none">
+                                {{ booking.user.username }}
+                            </a>
+                        </td>
+                        <td>
+                            <a href="{{ url_for('admin_rooms') }}" class="text-decoration-none">
+                                {{ booking.room.number }}
+                            </a>
+                        </td>
+                        <td>{{ booking.check_in.strftime('%d.%m.%Y') }}</td>
+                        <td>{{ booking.check_out.strftime('%d.%m.%Y') }}</td>
+                        <td>
+                            <span class="badge {% if booking.status == 'confirmed' %}bg-success
+                                             {% elif booking.status == 'pending' %}bg-warning
+                                             {% else %}bg-danger{% endif %}">
+                                {{ booking.status }}
+                            </span>
+                        </td>
+                        <td>{{ booking.total_price }} ₽</td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="{{ url_for('edit_booking', booking_id=booking.id) }}" 
+                                   class="btn btn-outline-primary" 
+                                   title="Редактировать">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <form action="{{ url_for('delete_booking', booking_id=booking.id) }}" 
+                                      method="POST" 
+                                      style="display: inline;"
+                                      onsubmit="return confirm('Вы уверены, что хотите удалить это бронирование?');">
+                                    <button type="submit" class="btn btn-outline-danger" title="Удалить">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 {% endblock %} 
